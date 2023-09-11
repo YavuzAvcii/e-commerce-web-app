@@ -1,0 +1,49 @@
+<%- layout('./layouts/boilerplate.ejs') %>
+<form
+  class="col-md-6 offset-md-3 col-sm-8 offset-sm-2"
+  action="/products"
+  method="POST"
+>
+  <div class="form-floating mb-3">
+    <input
+      type="text"
+      class="form-control"
+      id="title"
+      name="title"
+      placeholder="Product title"
+    />
+    <label for="title">Product title</label>
+  </div>
+
+  <div class="form-floating mb-3">
+    <input
+      type="text"
+      class="form-control"
+      id="seller"
+      name="seller"
+      placeholder="Seller"
+    />
+    <label for="seller">Seller</label>
+  </div>
+
+  <div class="input-group mb-3">
+    <span class="input-group-text">$</span>
+    <input
+      type="text"
+      class="form-control"
+      id="price"
+      name="price"
+      placeholder="0.00"
+    />
+  </div>
+  <div class="input-group mb-3">
+    <input
+      class="form-control"
+      type="text"
+      id="image"
+      name="image"
+      placeholder="Image URL"
+    />
+  </div>
+  <button class="btn btn-secondary" type="submit">Add Product</button>
+</form>
