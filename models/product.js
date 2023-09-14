@@ -5,9 +5,19 @@ const productSchema = Schema({
   image: {
     type: String,
   },
-  title: String,
-  price: Number,
-  seller: String,
+  title: {
+    type: String,
+    required: true,
+  },
+  price: {
+    type: Number,
+    required: true,
+  },
+  seller: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
 });
 
 const Product = mongoose.model("Product", productSchema);

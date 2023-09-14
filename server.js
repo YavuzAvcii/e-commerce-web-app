@@ -5,10 +5,12 @@ const app = express();
 const ejsMate = require("ejs-mate");
 const methodOverride = require("method-override");
 const catchAsyncErr = require("./utils/catchAsyncErr");
-const Product = require("./models/product");
 const Review = require("./models/review");
 const User = require("./models/user");
 const ExpressError = require("./utils/ExpressError");
+const productsRouter = require("./routes/products");
+const bcrypt = require("bcrypt");
+const session = require("express-session");
 
 main().catch((err) => console.log(err));
 
@@ -20,72 +22,30 @@ app.engine("ejs", ejsMate);
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
+const sessionConfig = {
+  name: "eSession",
+  secret: process.env.SESSION_SECRET || "thisisnotagoodsecret",
+  saveUninitialized: true,
+  resave: false,
+  cookie: {
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+  },
+};
+
+app.use(session(sessionConfig));
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
-
-// product routes
-app.get(
-  "/products",
-  catchAsyncErr(async (req, res, next) => {
-    const products = await Product.find({});
-    res.render("products/index", { products });
-  })
-);
-
-app.get("/products/new", (req, res) => {
-  res.render("products/new.ejs");
+app.use((req, res, next) => {
+  res.locals.currentUser = req.session.currentUser;
+  next();
 });
 
-app.post(
-  "/products",
-  catchAsyncErr(async (req, res, next) => {
-    const newProduct = new Product(req.body);
-    await newProduct.save();
-    res.redirect("/products");
-  })
-);
+app.get("/", (req, res) => {
+  res.render("home");
+});
 
-app.get(
-  "/products/:id",
-  catchAsyncErr(async (req, res, next) => {
-    const { id } = req.params;
-    const product = await Product.findById(id);
-    if (!product) {
-      throw new ExpressError(400, "Product could not found");
-    }
-    res.render("products/show.ejs", { product });
-  })
-);
-
-app.get(
-  "/products/:id/edit",
-  catchAsyncErr(async (req, res, next) => {
-    const { id } = req.params;
-    const product = await Product.findById(id);
-    if (!product) {
-      throw new ExpressError(400, "Product could not found");
-    }
-    res.render("products/edit", { product });
-  })
-);
-
-app.put(
-  "/products/:id",
-  catchAsyncErr(async (req, res, next) => {
-    const { id } = req.params;
-    await Product.findByIdAndUpdate(id, req.body);
-    res.redirect(`/products/${id}`);
-  })
-);
-
-app.delete(
-  "/products/:id",
-  catchAsyncErr(async (req, res, next) => {
-    const { id } = req.params;
-    await Product.findByIdAndDelete(id);
-    res.redirect("/products");
-  })
-);
+// product routes
+app.use("/products", productsRouter);
 
 // review routes
 app.post("/products/:productsId/reviews", (req, res) => {
@@ -97,12 +57,51 @@ app.delete("products/:productsId/reviews/:reviewId", (req, res) => {
 });
 
 // user routes
-app.post("/register", (req, res) => {
-  res.send("register request");
+
+app.get("/register", (req, res) => {
+  res.render("users/register");
 });
 
-app.post("/login", (req, res) => {
-  res.send("login request");
+app.get("/login", (req, res) => {
+  res.render("users/login");
+});
+
+app.post(
+  "/register",
+  catchAsyncErr(async (req, res) => {
+    const { username, email, password } = req.body;
+    const newUser = new User({ username, email });
+    const hashedPassword = await bcrypt.hash(password, 13);
+    newUser.password = hashedPassword;
+    await newUser.save();
+    res.redirect("/products");
+  })
+);
+
+app.post(
+  "/login",
+  catchAsyncErr(async (req, res, next) => {
+    const { username, password } = req.body;
+    const user = await User.findOne({ username });
+    const result = await bcrypt.compare(password, user.password);
+    if (!result) {
+      next(new ExpressError(400, "invalid username or password"));
+    }
+    req.session.currentUser = user;
+    res.redirect("/products");
+  })
+);
+
+app.get("/secretroute", (req, res) => {
+  if (req.session.currentUser) {
+    res.send("WOW YOU HAVE SEEN THIS");
+  }
+  res.send("secret");
+});
+
+app.post("/logout", (req, res) => {
+  req.session.currentUser = null;
+  res.redirect("/products");
 });
 
 app.get("*", (req, res, next) => {

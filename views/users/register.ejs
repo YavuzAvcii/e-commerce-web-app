@@ -1,0 +1,41 @@
+<%- layout('./layouts/boilerplate') %>
+
+<form
+  class="col-md-6 offset-md-3 col-sm-8 offset-sm-2"
+  action="/register"
+  method="POST"
+>
+  <div class="form-floating mb-3">
+    <input
+      type="text"
+      class="form-control"
+      id="username"
+      name="username"
+      placeholder="Username"
+    />
+    <label for="username">Username</label>
+  </div>
+
+  <div class="form-floating mb-3">
+    <input
+      type="password"
+      class="form-control"
+      id="password"
+      name="password"
+      placeholder="Password"
+    />
+    <label for="password">Password</label>
+  </div>
+
+  <div class="form-floating mb-3">
+    <input
+      class="form-control"
+      type="email"
+      id="email"
+      name="email"
+      placeholder="email"
+    />
+    <label for="email">Email</label>
+  </div>
+  <button class="btn btn-secondary" type="submit">Register</button>
+</form>
