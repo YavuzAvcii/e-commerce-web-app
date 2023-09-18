@@ -2,6 +2,7 @@ const express = require("express");
 const router = new express.Router();
 const catchAsyncErr = require("../utils/catchAsyncErr");
 const Product = require("../models/product");
+const { productAuthorize } = require("../middlewares/authorize");
 
 router.get(
   "/",
@@ -33,7 +34,6 @@ router.get(
   catchAsyncErr(async (req, res, next) => {
     const { id } = req.params;
     const product = await Product.findById(id).populate("seller");
-    console.log(product);
     if (!product) {
       throw new ExpressError(400, "Product could not found");
     }
@@ -43,6 +43,7 @@ router.get(
 
 router.get(
   "/:id/edit",
+  productAuthorize,
   catchAsyncErr(async (req, res, next) => {
     const { id } = req.params;
     const product = await Product.findById(id);
@@ -55,6 +56,7 @@ router.get(
 
 router.put(
   "/:id",
+  productAuthorize,
   catchAsyncErr(async (req, res, next) => {
     const { id } = req.params;
     await Product.findByIdAndUpdate(id, req.body);
@@ -64,6 +66,7 @@ router.put(
 
 router.delete(
   "/:id",
+  productAuthorize,
   catchAsyncErr(async (req, res, next) => {
     const { id } = req.params;
     await Product.findByIdAndDelete(id);

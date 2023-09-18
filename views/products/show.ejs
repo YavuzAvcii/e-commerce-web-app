@@ -12,9 +12,11 @@
         </p>
       </div>
       <ul class="list-group list-group-flush">
-        <li class="list-group-item"><%= product.seller.username%></li>
-        <li class="list-group-item"><b><%= product.price %>$</b></li>
+        <li class="list-group-item">Seller: <%= product.seller.username%></li>
+        <li class="list-group-item">Price: <b><%= product.price %>$</b></li>
       </ul>
+      <% if (currentUser && currentUser._id === product.seller._id.valueOf()) {
+      %>
       <div class="card-body d-flex flex-row">
         <form
           action="/products/<%= product._id %>?_method=DELETE"
@@ -26,6 +28,7 @@
           ><button class="btn btn-warning">Edit</button></a
         >
       </div>
+      <% } %>
     </div>
   </div>
 </div>
