@@ -9,8 +9,8 @@ const Review = require("./models/review");
 const User = require("./models/user");
 const ExpressError = require("./utils/ExpressError");
 const productsRouter = require("./routes/products");
-const bcrypt = require("bcrypt");
 const session = require("express-session");
+const userRouter = require("./routes/user");
 
 main().catch((err) => console.log(err));
 
@@ -47,6 +47,9 @@ app.get("/", (req, res) => {
 // product routes
 app.use("/products", productsRouter);
 
+// user routes
+app.use("/", userRouter);
+
 // review routes
 app.post("/products/:productsId/reviews", (req, res) => {
   res.send("create new review");
@@ -54,49 +57,6 @@ app.post("/products/:productsId/reviews", (req, res) => {
 
 app.delete("products/:productsId/reviews/:reviewId", (req, res) => {
   res.send("delete review");
-});
-
-// user routes
-
-app.get("/register", (req, res) => {
-  res.render("users/register");
-});
-
-app.get("/login", (req, res) => {
-  res.render("users/login");
-});
-
-app.post(
-  "/register",
-  catchAsyncErr(async (req, res) => {
-    const { username, email, password } = req.body;
-    const newUser = new User({ username, email });
-    const hashedPassword = await bcrypt.hash(password, 13);
-    newUser.password = hashedPassword;
-    await newUser.save();
-    res.redirect("/products");
-  })
-);
-
-app.post(
-  "/login",
-  catchAsyncErr(async (req, res, next) => {
-    const { username, password } = req.body;
-    const user = await User.findOne({ username });
-    const result = await bcrypt.compare(password, user.password);
-    if (!result) {
-      next(new ExpressError(400, "invalid username or password"));
-    }
-    req.session.currentUser = user;
-    res.redirect("/products");
-  })
-);
-
-app.get("/secretroute", (req, res) => {
-  if (req.session.currentUser) {
-    res.send("WOW YOU HAVE SEEN THIS");
-  }
-  res.send("secret");
 });
 
 app.post("/logout", (req, res) => {

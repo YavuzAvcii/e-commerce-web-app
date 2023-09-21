@@ -2,7 +2,12 @@ const express = require("express");
 const router = new express.Router();
 const catchAsyncErr = require("../utils/catchAsyncErr");
 const Product = require("../models/product");
-const { productAuthorize } = require("../middlewares/authorize");
+const {
+  productAuthorize,
+  checkNewProduct,
+} = require("../middlewares/authorize");
+const routeRemember = require("../middlewares/routeRemember");
+const productValidation = require("../middlewares/productValidation");
 
 router.get(
   "/",
@@ -21,6 +26,9 @@ router.get("/new", (req, res) => {
 
 router.post(
   "/",
+  checkNewProduct,
+  routeRemember,
+  productValidation,
   catchAsyncErr(async (req, res, next) => {
     const newProduct = new Product(req.body);
     newProduct.seller = req.session.currentUser;
