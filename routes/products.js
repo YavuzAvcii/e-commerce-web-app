@@ -2,12 +2,13 @@ const express = require("express");
 const router = new express.Router();
 const catchAsyncErr = require("../utils/catchAsyncErr");
 const Product = require("../models/product");
-const {
-  productAuthorize,
-  checkNewProduct,
-} = require("../middlewares/authorize");
+const { productAuthorize, isLoggedIn } = require("../middlewares/authorize");
 const routeRemember = require("../middlewares/routeRemember");
 const productValidation = require("../middlewares/productValidation");
+const Multer = require("multer");
+const storage = new Multer.memoryStorage();
+const upload = Multer({ storage });
+const { cloudinary, handleUpload } = require("../cloudinaryConfig");
 
 router.get(
   "/",
@@ -26,12 +27,19 @@ router.get("/new", (req, res) => {
 
 router.post(
   "/",
-  checkNewProduct,
+  isLoggedIn,
+  upload.single("image"),
   routeRemember,
   productValidation,
   catchAsyncErr(async (req, res, next) => {
-    const newProduct = new Product(req.body);
+    const { title, price } = req.body;
+    const newProduct = new Product({ title, price });
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+    const cldRes = await handleUpload(dataURI);
+    newProduct.imageUrl = cldRes.url;
     newProduct.seller = req.session.currentUser;
+    console.log(newProduct);
     await newProduct.save();
     res.redirect("/products");
   })

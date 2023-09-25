@@ -2,8 +2,9 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const productSchema = Schema({
-  image: {
+  imageUrl: {
     type: String,
+    required: true,
   },
   title: {
     type: String,

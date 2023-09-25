@@ -13,7 +13,7 @@ module.exports.productAuthorize = async (req, res, next) => {
 };
 
 // Check weather user logged in or not for adding new product
-module.exports.checkNewProduct = (req, res, next) => {
+module.exports.isLoggedIn = (req, res, next) => {
   if (!req.session.currentUser) {
     // ADD FLASH
     res.redirect("/login");

@@ -3,6 +3,7 @@
   class="col-md-6 offset-md-3 col-sm-8 offset-sm-2"
   action="/products"
   method="POST"
+  enctype="multipart/form-data"
 >
   <div class="form-floating mb-3">
     <input
@@ -25,7 +26,7 @@
       placeholder="0.00"
     />
   </div>
-  <div class="input-group mb-3">
+  <!-- <div class="input-group mb-3">
     <input
       class="form-control"
       type="text"
@@ -33,6 +34,13 @@
       name="image"
       placeholder="Image URL"
     />
+  </div> -->
+  <div class="input-group mb-3">
+    <label for="file">Add image</label>
+    <input class="form-control" type="file" name="image" id="file" />
   </div>
-  <button class="btn btn-secondary" type="submit">Add Product</button>
+
+  <div>
+    <button class="btn btn-secondary" type="submit">Add Product</button>
+  </div>
 </form>

@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -43,6 +44,13 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.render("home");
 });
+
+// UPLOAD TRYING
+app.get("/upload", (req, res) => {
+  res.render("upload");
+});
+
+// ADD CLOUDINARY FOLDER
 
 // product routes
 app.use("/products", productsRouter);
