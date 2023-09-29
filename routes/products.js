@@ -39,7 +39,6 @@ router.post(
     const cldRes = await handleUpload(dataURI);
     newProduct.imageUrl = cldRes.url;
     newProduct.seller = req.session.currentUser;
-    console.log(newProduct);
     await newProduct.save();
     res.redirect("/products");
   })
