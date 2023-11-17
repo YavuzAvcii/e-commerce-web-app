@@ -18,6 +18,12 @@ const userSchema = Schema({
     type: String,
     required: true,
   },
+  chart: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+    },
+  ],
 });
 
 const User = mongoose.model("User", userSchema);

@@ -9,6 +9,7 @@ const Multer = require("multer");
 const storage = new Multer.memoryStorage();
 const upload = Multer({ storage });
 const { cloudinary, handleUpload } = require("../cloudinaryConfig");
+const User = require("../models/user");
 
 router.get(
   "/",
@@ -23,6 +24,19 @@ router.get(
 
 router.get("/new", (req, res) => {
   res.render("products/new");
+});
+
+router.post("/chart/:id", async (req, res) => {
+  const { id } = req.params;
+  const product = await Product.findById(id);
+  const currUser = req.session.currentUser;
+  const user = await User.findById(currUser._id);
+  if (!currUser) {
+    return res.redirect("/login");
+  }
+  user.chart.push(product);
+  user.save();
+  res.redirect(`/products/${id}`);
 });
 
 router.post(
@@ -48,7 +62,14 @@ router.get(
   "/:id",
   catchAsyncErr(async (req, res, next) => {
     const { id } = req.params;
-    const product = await Product.findById(id).populate("seller");
+    const product = await Product.findById(id)
+      .populate("seller")
+      .populate("reviews");
+
+    const reviews = product.reviews;
+    for (let review of reviews) {
+      await review.populate("author");
+    }
     if (!product) {
       throw new ExpressError(400, "Product could not found");
     }

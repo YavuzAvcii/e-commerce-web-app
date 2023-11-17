@@ -20,6 +20,7 @@ router.post(
     const newUser = new User({ username, email });
     const hashedPassword = await bcrypt.hash(password, 13);
     newUser.password = hashedPassword;
+    newUser.chart = [];
     await newUser.save();
     res.redirect("/products");
   })

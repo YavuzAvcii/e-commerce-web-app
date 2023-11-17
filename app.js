@@ -1,4 +1,6 @@
-require("dotenv").config();
+if (process.env.NODE_ENV !== "prouction") {
+  require("dotenv").config();
+}
 const express = require("express");
 const mongoose = require("mongoose");
 const path = require("path");
@@ -7,11 +9,11 @@ const ejsMate = require("ejs-mate");
 const methodOverride = require("method-override");
 const catchAsyncErr = require("./utils/catchAsyncErr");
 const Review = require("./models/review");
-const User = require("./models/user");
 const ExpressError = require("./utils/ExpressError");
 const productsRouter = require("./routes/products");
 const session = require("express-session");
 const userRouter = require("./routes/user");
+const Product = require("./models/product");
 
 main().catch((err) => console.log(err));
 
@@ -46,13 +48,6 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 
-// UPLOAD TRYING
-app.get("/upload", (req, res) => {
-  res.render("upload");
-});
-
-// ADD CLOUDINARY FOLDER
-
 // product routes
 app.use("/products", productsRouter);
 
@@ -60,9 +55,22 @@ app.use("/products", productsRouter);
 app.use("/", userRouter);
 
 // review routes
-app.post("/products/:productsId/reviews", (req, res) => {
-  res.send("create new review");
-});
+app.post(
+  "/products/:productId/reviews",
+  catchAsyncErr(async (req, res) => {
+    const { productId } = req.params;
+    const review = new Review(req.body);
+    const product = await Product.findById(productId);
+    review.author = req.session.currentUser;
+    product.reviews.push(review);
+    if (!review.rating) {
+      throw new ExpressError(400, "Rating can not be empty!");
+    }
+    review.save();
+    product.save();
+    res.redirect(`/products/${productId}`);
+  })
+);
 
 app.delete("products/:productsId/reviews/:reviewId", (req, res) => {
   res.send("delete review");
