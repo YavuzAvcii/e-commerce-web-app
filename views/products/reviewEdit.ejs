@@ -1,0 +1,44 @@
+<%- layout("layouts/boilerplate.ejs") %>
+<link rel="stylesheet" href="/stylesheets/stars.css" />
+
+<form
+  class="review-form flex algin-center col-md-6 offset-md-3 col-sm-8 offset-sm-2"
+  action="/products/<%=product.id%>/reviews/<%= review._id %>?_method=PUT"
+  method="POST"
+>
+  <fieldset class="starability-basic mt-3 mb-3">
+    <legend>Add a review</legend>
+    <input
+      type="radio"
+      id="no-rate"
+      class="input-no-rate"
+      name="rating"
+      value="0"
+      checked
+      aria-label="No rating."
+    />
+    <input type="radio" id="first-rate1" name="rating" value="1" />
+    <label for="first-rate1" title="Terrible">1 star</label>
+    <input type="radio" id="first-rate2" name="rating" value="2" />
+    <label for="first-rate2" title="Not good">2 stars</label>
+    <input type="radio" id="first-rate3" name="rating" value="3" />
+    <label for="first-rate3" title="Average">3 stars</label>
+    <input type="radio" id="first-rate4" name="rating" value="4" />
+    <label for="first-rate4" title="Very good">4 stars</label>
+    <input type="radio" id="first-rate5" name="rating" value="5" />
+    <label for="first-rate5" title="Amazing">5 stars</label>
+  </fieldset>
+  <div class="form-floating">
+    <input
+      class="form-control mb-3 border-dark"
+      type="text"
+      name="text"
+      id="text"
+      value="<%= review.text %>"
+      placeholder="review"
+    />
+    <label class="form-label" for="text">review</label>
+  </div>
+
+  <button class="btn btn-primary mb-3">submit</button>
+</form>

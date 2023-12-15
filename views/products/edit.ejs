@@ -2,8 +2,9 @@
 
 <form
   class="col-md-6 offset-md-3 col-sm-8 offset-sm-2"
-  action="/products/<%= product._id %>?_method=PUT"
+  action="/products/:id?_method=PUT"
   method="POST"
+  enctype="multipart/form-data"
 >
   <div class="form-floating mb-3">
     <input
@@ -12,21 +13,8 @@
       id="title"
       name="title"
       placeholder="Product title"
-      value="<%= product.title %>"
     />
     <label for="title">Product title</label>
-  </div>
-
-  <div class="form-floating mb-3">
-    <input
-      type="text"
-      class="form-control"
-      id="seller"
-      name="seller"
-      placeholder="Seller"
-      value="<%= product.seller %>"
-    />
-    <label for="seller">Seller</label>
   </div>
 
   <div class="input-group mb-3">
@@ -37,18 +25,15 @@
       id="price"
       name="price"
       placeholder="0.00"
-      value="<%= product.price %>"
     />
   </div>
+
   <div class="input-group mb-3">
-    <input
-      class="form-control"
-      type="text"
-      id="image"
-      name="image"
-      placeholder="Image URL"
-      value="<%= product.image %>"
-    />
+    <label for="file">Add image</label>
+    <input class="form-control" type="file" name="image" id="file" />
   </div>
-  <button class="btn btn-secondary" type="submit">Save</button>
+
+  <div>
+    <button class="btn btn-secondary" type="submit">Add Product</button>
+  </div>
 </form>

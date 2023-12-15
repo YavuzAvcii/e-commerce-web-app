@@ -4,7 +4,7 @@ const catchAsyncErr = require("../utils/catchAsyncErr");
 const Product = require("../models/product");
 const { productAuthorize, isLoggedIn } = require("../middlewares/authorize");
 const routeRemember = require("../middlewares/routeRemember");
-const productValidation = require("../middlewares/productValidation");
+const { productValidation } = require("../middlewares/validation");
 const Multer = require("multer");
 const storage = new Multer.memoryStorage();
 const upload = Multer({ storage });
@@ -79,7 +79,9 @@ router.get(
 
 router.get(
   "/:id/edit",
+  upload.single("image"),
   productAuthorize,
+  productValidation,
   catchAsyncErr(async (req, res, next) => {
     const { id } = req.params;
     const product = await Product.findById(id);
@@ -95,7 +97,14 @@ router.put(
   productAuthorize,
   catchAsyncErr(async (req, res, next) => {
     const { id } = req.params;
-    await Product.findByIdAndUpdate(id, req.body);
+    const { title, price } = req.body;
+    const b64 = Buffer.from(req.file.buffer).toString("base64");
+    let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
+    const cldRes = await handleUpload(dataURI);
+    const productBody = { title, price };
+    productBody.imageUrl = cldRes.url;
+    await Product.findByIdAndUpdate(id, productBody);
+
     res.redirect(`/products/${id}`);
   })
 );

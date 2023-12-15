@@ -7,12 +7,12 @@ const path = require("path");
 const app = express();
 const ejsMate = require("ejs-mate");
 const methodOverride = require("method-override");
-const catchAsyncErr = require("./utils/catchAsyncErr");
-const Review = require("./models/review");
 const ExpressError = require("./utils/ExpressError");
 const productsRouter = require("./routes/products");
 const session = require("express-session");
 const userRouter = require("./routes/user");
+const reviewsRouter = require("./routes/reviews");
+const User = require("./models/user");
 const Product = require("./models/product");
 
 main().catch((err) => console.log(err));
@@ -55,30 +55,34 @@ app.use("/products", productsRouter);
 app.use("/", userRouter);
 
 // review routes
-app.post(
-  "/products/:productId/reviews",
-  catchAsyncErr(async (req, res) => {
-    const { productId } = req.params;
-    const review = new Review(req.body);
-    const product = await Product.findById(productId);
-    review.author = req.session.currentUser;
-    product.reviews.push(review);
-    if (!review.rating) {
-      throw new ExpressError(400, "Rating can not be empty!");
-    }
-    review.save();
-    product.save();
-    res.redirect(`/products/${productId}`);
-  })
-);
+app.use("/products", reviewsRouter);
 
-app.delete("products/:productsId/reviews/:reviewId", (req, res) => {
-  res.send("delete review");
+// cart routes
+app.get("/cart", async (req, res) => {
+  const user = await User.findById(req.session.currentUser._id).populate(
+    "cart"
+  );
+  const cart = user.cart;
+  console.log(cart);
+  res.render("users/cart", { cart });
 });
 
-app.post("/logout", (req, res) => {
-  req.session.currentUser = null;
-  res.redirect("/products");
+app.post("/cart/:productId", async (req, res) => {
+  const { productId } = req.params;
+  const user = await User.findById(req.session.currentUser._id);
+  const product = await Product.findById(productId);
+  user.cart.push(product._id);
+  user.save();
+  res.redirect(`/products/${productId}`);
+});
+
+// Remove product from cart
+app.delete("/cart/:productId", async (req, res) => {
+  const { productId } = req.params;
+  const user = await User.findById(req.session.currentUser._id);
+  user.cart = user.cart.filter((p) => p.valueOf() !== productId);
+  user.save();
+  res.redirect(`/cart`);
 });
 
 app.get("*", (req, res, next) => {

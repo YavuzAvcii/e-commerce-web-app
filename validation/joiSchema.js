@@ -8,4 +8,16 @@ module.exports.productSchema = Joi.object({
   }).required(),
 }).required();
 
-module.exports.reviewSchema = Joi.object({});
+module.exports.reviewSchema = Joi.object({
+  review: Joi.object({
+    text: Joi.string(),
+    rating: Joi.number().required(),
+  }),
+});
+
+// module.exports.userSchema = Joi.object({
+//   user: Joi.object({
+//     username: Joi.string().required(),
+
+//   })
+// })

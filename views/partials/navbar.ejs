@@ -26,6 +26,9 @@
         <a class="nav-link" href="/login">Login</a>
         <a class="nav-link" href="/register">Register</a>
         <% } else { %>
+        <a class="nav-link me-3" href="/cart"
+          ><i class="fa-solid fa-cart-shopping"></i
+        ></a>
         <form action="/logout" method="POST">
           <button class="nav-link">Logout</button>
         </form>
@@ -34,3 +37,8 @@
     </div>
   </div>
 </nav>
+
+<script
+  src="https://kit.fontawesome.com/3f15e003d8.js"
+  crossorigin="anonymous"
+></script>

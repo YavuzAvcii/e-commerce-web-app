@@ -1,6 +1,12 @@
 <%- layout('./layouts/boilerplate') %>
 
 <link rel="stylesheet" href="/stylesheets/show.css" />
+<link rel="stylesheet" href="/stylesheets/stars.css" />
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
 <div class="card">
   <div class="row">
     <div class="col-6">
@@ -16,13 +22,16 @@
         <li class="list-group-item">Seller: <%= product.seller.username%></li>
         <li class="list-group-item">Price: <b><%= product.price %>$</b></li>
       </ul>
+
+      <% if(currentUser && currentUser._id !== product.seller._id.valueOf()) {
+      %>
       <div class="card-body d-flex flex-row">
-        <form action="/products/chart/<%= product._id%>" method="POST">
-          <button class="btn btn-primary">Add to your chart</button>
+        <form action="/cart/<%= product._id %>" method="POST">
+          <button class="btn btn-primary">Add to your cart</button>
         </form>
       </div>
-      <% if (currentUser && currentUser._id === product.seller._id.valueOf()) {
-      %>
+      <% } else if (currentUser && currentUser._id ===
+      product.seller._id.valueOf()) { %>
       <div class="card-body d-flex flex-row">
         <form
           action="/products/<%= product._id %>?_method=DELETE"
@@ -37,20 +46,70 @@
       <% } %>
     </div>
     <div class="col-6">
-      <%if (currentUser) {%>
-      <form action="/products/<%=product.id%>/reviews" method="POST">
-        <label for="rating">Rate form 1 to 5</label>
-        <input type="range" min="1" max="5" name="rating" id="rating" />
-        <label for="text">review</label>
-        <input type="text" name="text" id="text" />
-        <button class="btn btn-primary">submit</button>
+      <% if (!currentUser) {%>
+      <div class="card-body d-flex d-row">
+        <legend>Login to add a review</legend>
+      </div>
+
+      <% } %> <%if (currentUser) {%>
+      <form
+        class="review-form"
+        action="/products/<%=product.id%>/reviews"
+        method="POST"
+      >
+        <fieldset class="starability-basic mt-3 mb-3">
+          <legend>Add a review</legend>
+          <input
+            type="radio"
+            id="no-rate"
+            class="input-no-rate"
+            name="rating"
+            value="0"
+            checked
+            aria-label="No rating."
+          />
+          <input type="radio" id="first-rate1" name="rating" value="1" />
+          <label for="first-rate1" title="Terrible">1 star</label>
+          <input type="radio" id="first-rate2" name="rating" value="2" />
+          <label for="first-rate2" title="Not good">2 stars</label>
+          <input type="radio" id="first-rate3" name="rating" value="3" />
+          <label for="first-rate3" title="Average">3 stars</label>
+          <input type="radio" id="first-rate4" name="rating" value="4" />
+          <label for="first-rate4" title="Very good">4 stars</label>
+          <input type="radio" id="first-rate5" name="rating" value="5" />
+          <label for="first-rate5" title="Amazing">5 stars</label>
+        </fieldset>
+        <label class="form-label" for="text">review</label>
+        <input class="form-control mb-3" type="text" name="text" id="text" />
+        <button class="btn btn-primary mb-3">submit</button>
       </form>
       <%}%> <% for (let review of product.reviews) { %>
       <div class="card">
         <div class="card-body">
           <h5 class="card-title"><%=review.author.username%></h5>
+          <p class="starability-result" data-rating="<%=review.rating%>">
+            Rated: <%=review.rating%> stars
+          </p>
           <p class="card-text"><%= review.text %></p>
-          <a href="#" class="btn btn-primary">Go somewhere</a>
+
+          <%if (currentUser && currentUser._id === review.author._id.valueOf())
+          {%>
+
+          <div class="card-body d-flex flex-row ps-0">
+            <form
+              action="/products/<%=product._id%>/reviews/<%=review._id%>?_method=DELETE"
+              method="POST"
+            >
+              <button class="btn btn-danger ms-0 me-3">Delete</button>
+            </form>
+            <form action="/products/<%=product._id%>/reviews/<%=review._id%>">
+              <button class="btn btn-warning">Edit</button>
+            </form>
+          </div>
+
+          <script src="/javascripts/reviewForm.js"></script>
+
+          <%}%>
         </div>
       </div>
       <%}%>

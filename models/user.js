@@ -12,16 +12,18 @@ const userSchema = Schema({
   },
   userType: {
     type: String,
-    enum: ["seller", "buyer"],
+    enum: ["seller", "customer"],
+    required: true,
   },
   email: {
     type: String,
     required: true,
   },
-  chart: [
+  cart: [
     {
       type: Schema.Types.ObjectId,
       ref: "Product",
+      required: true,
     },
   ],
 });

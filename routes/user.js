@@ -16,8 +16,8 @@ router.get("/login", (req, res) => {
 router.post(
   "/register",
   catchAsyncErr(async (req, res) => {
-    const { username, email, password } = req.body;
-    const newUser = new User({ username, email });
+    const { username, email, password, userType } = req.body;
+    const newUser = new User({ username, email, userType });
     const hashedPassword = await bcrypt.hash(password, 13);
     newUser.password = hashedPassword;
     newUser.chart = [];
@@ -39,5 +39,10 @@ router.post(
     res.redirect("/products");
   })
 );
+
+router.post("/logout", (req, res) => {
+  req.session.currentUser = null;
+  res.redirect("/products");
+});
 
 module.exports = router;
